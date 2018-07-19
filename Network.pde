@@ -98,7 +98,7 @@ class Network {
 
   void addConnexion(int debut, int fin) { //Ajoute une connexion entre les nodes d'ID début et fin en générant aléatoirement le poids en fonction de poidsMax
     if (getPosConnexion(debut, fin) != -1) {
-      println("Impossible de créer une connexion entre " + debut + " et " + fin + " puisque la connexion existe déjà");
+      //println("Impossible de créer une connexion entre " + debut + " et " + fin + " puisque la connexion existe déjà");
       return;
     }
     if (debut == fin) {
@@ -131,6 +131,7 @@ class Network {
   void addNode(int ID1, int ID2) { 
     //Ajoute une node entre la node d'ID ID1 et la node d'ID ID2, crée aussi une nouvelle connexion de poids 1 entre ID1 et la nouvelle node,
     //le poids entre la nouvelle node et ID2 est le même qu'entre ID1 et ID2
+    //Pour éviter de créer de longues lignes de nodes, on ne crée pas une node si le poids de la conexion est 1
     if (ID1 == ID2) {
       println("Impossible de créer une nouvelle node entre la même node " + ID1);
       return;
@@ -145,6 +146,9 @@ class Network {
     if (indConnexion == -1) {
       println("Impossible de créer une node entre les nodes " + ID1 + " et " + ID2 + ", elles ne sont pas connectées");
       return;
+    }
+    if(connexions[indConnexion].weight == 1){ //Pour éviter de créer de longues chaines de nodes
+       return; 
     }
 
     totalNodes++;
@@ -475,7 +479,7 @@ class Network {
 
 
     //Ajout d'une node, fonctionne parfaitement
-    if (random(1)<mutationRate/1.0) {
+    if (random(1)<mutationRate/20.0) {
       int ind = floor(random(0, connexions.length));
       if (connexions[ind] != null) { //On ne peut pas ajouter de nodes si le réseau ne comporte pas de connexions
         //println("Ajout d'une node"); 
@@ -485,7 +489,7 @@ class Network {
 
 
     //Ajout d'une connexion, fonctionne
-    if (random(1)<mutationRate) {
+    if (random(1)<mutationRate/10.0) {
       int ind1 = floor(random(0, nodes.length));
       int ind2 = floor(random(0, nodes.length));
       if (ind1!=ind2 && nodes[ind1].type != 2) {
@@ -502,6 +506,8 @@ class Network {
         connexions[i].weight+=random(-mutationRate, mutationRate)/100;
       }
     }
+    
+    calculateLayers();
   }
 
 
@@ -573,7 +579,7 @@ class Network {
   //------------------------------------------------------------------------------------------------------------------------------------
 
 
-  void showNN(float xmin, float ymin, float xmax, float ymax) {
+  void show(float xmin, float ymin, float xmax, float ymax) {
     //background(127); 
     int margin = 25; 
     int len = 0, ind = 0; 
@@ -611,7 +617,7 @@ class Network {
         nodes[ind].x = x; 
         nodes[ind].y = y; 
         fill(map(nodes[ind].bias, -1, 1, 0, 255));
-        stroke(map(nodes[ind].layer,0,getDeepest()+1,0,255),255,255);
+        stroke(map(nodes[ind].layer,0,allNodes.length+1,0,255),255,255);
         strokeWeight(2);
         ellipse(x, y, sizeNode, sizeNode); 
         textSize(25); 
