@@ -475,7 +475,7 @@ class Network {
 
 
     //Ajout d'une node, fonctionne parfaitement
-    if (random(1)<mutationRate) {
+    if (random(1)<mutationRate/1.0) {
       int ind = floor(random(0, connexions.length));
       if (connexions[ind] != null) { //On ne peut pas ajouter de nodes si le réseau ne comporte pas de connexions
         //println("Ajout d'une node"); 
@@ -488,7 +488,7 @@ class Network {
     if (random(1)<mutationRate) {
       int ind1 = floor(random(0, nodes.length));
       int ind2 = floor(random(0, nodes.length));
-      if (ind1!=ind2) {
+      if (ind1!=ind2 && nodes[ind1].type != 2) {
         //println("Ajout d'une connexion");
         addConnexion(ind1, ind2);
       }
@@ -610,11 +610,13 @@ class Network {
         ind = getPosNode(allNodes[i][j].ID); 
         nodes[ind].x = x; 
         nodes[ind].y = y; 
-        fill(map(nodes[ind].bias, -1, 1, 0, 255)); 
+        fill(map(nodes[ind].bias, -1, 1, 0, 255));
+        stroke(map(nodes[ind].layer,0,getDeepest()+1,0,255),255,255);
+        strokeWeight(2);
         ellipse(x, y, sizeNode, sizeNode); 
-        textSize(15); 
+        textSize(25); 
         fill(255); 
-        text(nodes[ind].ID, x-5, y+20);
+        //text(nodes[ind].ID, x-5, y+20);
         //text(nodes[ind].layer, x-5, y+20);
       }
     }
@@ -627,7 +629,8 @@ class Network {
         deb = getPosNode(connexions[i].input); 
         fin = getPosNode(connexions[i].output); 
         if (deb != -1 && fin != -1) { //Si il n'y a pas de problème
-          strokeWeight(map(connexions[i].weight, -5, 5, 1, 5)); 
+          strokeWeight(map(connexions[i].weight, -5, 5, 1, 10));
+          stroke(0,100);
           line(nodes[deb].x, nodes[deb].y, nodes[fin].x, nodes[fin].y);
         }
       }
