@@ -1,11 +1,11 @@
-import java.util.*; //<>//
+import java.util.*; //<>// //<>// //<>//
 
 class Network {
   Node[] nodes;
   Connexion[] connexions;
   int nbInputs, nbOutputs, totalNodes;
   int nbConnexions;
-  float poidsMax = 5;
+  float poidsMax = 1;
 
   Network(int nbInputs, int nbOutputs) {
     this.nbInputs = nbInputs;
@@ -147,8 +147,8 @@ class Network {
       println("Impossible de créer une node entre les nodes " + ID1 + " et " + ID2 + ", elles ne sont pas connectées");
       return;
     }
-    if(connexions[indConnexion].weight == 1){ //Pour éviter de créer de longues chaines de nodes
-       return; 
+    if (connexions[indConnexion].weight == 1) { //Pour éviter de créer de longues chaines de nodes
+      return;
     }
 
     totalNodes++;
@@ -204,7 +204,7 @@ class Network {
     for (int i=0; i<nodes.length; i++) {
       if (nodes[i].type == 2) {
         nodes[i].layer = max;
-      } //<>//
+      }
     }
   }
 
@@ -394,7 +394,7 @@ class Network {
   //------------------------------------------------------------------------------------------------------------------------------------
 
   Connexion[][] getConnexionsLayers() {
-    int size = getDeepest()+1; 
+    int size = getDeepest(); 
     int ind = 0; 
     Connexion[][] allConn = new Connexion[size][]; 
 
@@ -428,6 +428,7 @@ class Network {
     int ind = 0; 
     int deb = 0, fin = 0, indDeb, indFin; 
     Connexion[][] conn; 
+    ArrayList<Integer> nodesToActivate = new ArrayList<Integer>();
 
 
     if (inputs.length != nbInputs) {
@@ -447,6 +448,7 @@ class Network {
     }
 
     for (int i=0; i<conn.length; i++) {
+      nodesToActivate.clear();
       for (int j=0; j<conn[i].length; j++) {
         deb = conn[i][j].input; 
         fin = conn[i][j].output; 
@@ -454,9 +456,19 @@ class Network {
         indFin = getPosNode(fin); 
         if (indDeb != -1 && indFin != -1) {
           nodes[indFin].sum+=nodes[indDeb].output*conn[i][j].weight;
+          nodesToActivate.add(indFin);
         }
       }
-      activateLayer(i+1); //On active le niveau que l'on vient de créer
+      
+      Set<Integer> hs = new HashSet<Integer>();
+      hs.addAll(nodesToActivate);
+      nodesToActivate.clear();
+      nodesToActivate.addAll(hs);
+      
+      for (Integer node : nodesToActivate) {
+        nodes[node].activate(); //On active le niveau que l'on vient de nourrir
+      }
+      //activateLayer(i+1);
     }
 
     ind = 0; 
@@ -479,13 +491,13 @@ class Network {
 
 
     //Ajout d'une node, fonctionne parfaitement
-    if (random(1)<mutationRate/20.0) {
+    /*if (random(1)<mutationRate/20.0) {
       int ind = floor(random(0, connexions.length));
       if (connexions[ind] != null) { //On ne peut pas ajouter de nodes si le réseau ne comporte pas de connexions
         //println("Ajout d'une node"); 
         addNode(connexions[ind].input, connexions[ind].output);
       }
-    }
+    }*/
 
 
     //Ajout d'une connexion, fonctionne
@@ -503,10 +515,10 @@ class Network {
     for (int i=0; i<connexions.length; i++) {
       if (random(1)<mutationRate && connexions[i] != null) {
         //println("Modification des poids");
-        connexions[i].weight+=random(-mutationRate, mutationRate)/100;
+        connexions[i].weight+=random(-mutationRate, mutationRate)/100.0;
       }
     }
-    
+
     calculateLayers();
   }
 
@@ -617,7 +629,7 @@ class Network {
         nodes[ind].x = x; 
         nodes[ind].y = y; 
         fill(map(nodes[ind].bias, -1, 1, 0, 255));
-        stroke(map(nodes[ind].layer,0,allNodes.length+1,0,255),255,255);
+        stroke(map(nodes[ind].layer, 0, allNodes.length+1, 0, 255), 255, 255);
         strokeWeight(2);
         ellipse(x, y, sizeNode, sizeNode); 
         textSize(25); 
@@ -636,7 +648,7 @@ class Network {
         fin = getPosNode(connexions[i].output); 
         if (deb != -1 && fin != -1) { //Si il n'y a pas de problème
           strokeWeight(map(connexions[i].weight, -5, 5, 1, 10));
-          stroke(0,100);
+          stroke(0, 100);
           line(nodes[deb].x, nodes[deb].y, nodes[fin].x, nodes[fin].y);
         }
       }
